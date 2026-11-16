@@ -41,6 +41,7 @@ public:
 	void setBuffer(uint_least32_t *buf) { buffer_ = buf; bgmBuffer_ = 0; bufferPos_ = 0; }
 	void setBuffers(uint_least32_t *buf, uint_least32_t *bgmBuf) { buffer_ = buf; bgmBuffer_ = bgmBuf; bufferPos_ = 0; }
 	void setChannelSfx(unsigned channel, bool isSfx) { if (channel < 4) channelSfx_[channel] = isSfx; }
+	void setBgmEnabled(bool value) { bgmEnabled_ = value; }
 
 	bool isEnabled() const { return enabled_; }
 	void setEnabled(bool value) { enabled_ = value; }
@@ -81,6 +82,7 @@ private:
 	uint_least32_t *buffer_;
 	uint_least32_t *bgmBuffer_;
 	bool channelSfx_[4];
+	bool bgmEnabled_;
 	std::size_t bufferPos_;
 	unsigned long lastUpdate_;
 	unsigned long soVol_;
