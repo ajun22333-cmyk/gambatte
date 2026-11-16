@@ -48,7 +48,7 @@ namespace gambatte {
 PSG::PSG()
 : buffer_(0)
 , bgmBuffer_(0)
-, channelSfx_()
+
 , bufferPos_(0)
 , lastUpdate_(0)
 , soVol_(0)
@@ -56,6 +56,7 @@ PSG::PSG()
 , bgmRsum_(0x8000)
 , enabled_(false)
 {
+	std::memset(channelSfx_, 0, sizeof channelSfx_);
 }
 
 void PSG::init(bool cgb) {
@@ -68,6 +69,7 @@ void PSG::reset() {
 	ch2_.reset();
 	ch3_.reset();
 	ch4_.reset();
+	std::memset(channelSfx_, 0, sizeof channelSfx_);
 }
 
 void PSG::setStatePtrs(SaveState &state) {
@@ -86,6 +88,7 @@ void PSG::loadState(SaveState const &state) {
 	ch2_.loadState(state);
 	ch3_.loadState(state);
 	ch4_.loadState(state);
+	std::memset(channelSfx_, 0, sizeof channelSfx_);
 
 	lastUpdate_ = state.cpu.cycleCounter;
 	setSoVolume(state.mem.ioamhram.get()[0x124]);
