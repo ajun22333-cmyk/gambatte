@@ -36,6 +36,7 @@ Memory::Memory(Interrupter const &interrupter)
 , oamDmaPos_(0xFE)
 , serialCnt_(0)
 , blanklcd_(false)
+, pokemonCrystalAudio_(false)
 {
 	intreq_.setEventTime<intevent_blit>(144 * 456ul);
 	intreq_.setEventTime<intevent_end>(0);
@@ -637,6 +638,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x10);
 		psg_.setNr10(data);
 		data |= 0x80;
 		break;
@@ -649,6 +651,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 		}
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x11);
 		psg_.setNr11(data);
 		data |= 0x3F;
 		break;
@@ -657,6 +660,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x12);
 		psg_.setNr12(data);
 		break;
 	case 0x13:
@@ -664,6 +668,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x13);
 		psg_.setNr13(data);
 		return;
 	case 0x14:
@@ -671,6 +676,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x14);
 		psg_.setNr14(data);
 		data |= 0xBF;
 		break;
@@ -683,6 +689,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 		}
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x16);
 		psg_.setNr21(data);
 		data |= 0x3F;
 		break;
@@ -691,6 +698,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x17);
 		psg_.setNr22(data);
 		break;
 	case 0x18:
@@ -698,6 +706,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x18);
 		psg_.setNr23(data);
 		return;
 	case 0x19:
@@ -705,6 +714,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x19);
 		psg_.setNr24(data);
 		data |= 0xBF;
 		break;
@@ -713,6 +723,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x1A);
 		psg_.setNr30(data);
 		data |= 0x7F;
 		break;
@@ -721,6 +732,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x1B);
 		psg_.setNr31(data);
 		return;
 	case 0x1C:
@@ -728,6 +740,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x1C);
 		psg_.setNr32(data);
 		data |= 0x9F;
 		break;
@@ -736,6 +749,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x1D);
 		psg_.setNr33(data);
 		return;
 	case 0x1E:
@@ -743,6 +757,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x1E);
 		psg_.setNr34(data);
 		data |= 0xBF;
 		break;
@@ -751,6 +766,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x20);
 		psg_.setNr41(data);
 		return;
 	case 0x21:
@@ -758,6 +774,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x21);
 		psg_.setNr42(data);
 		break;
 	case 0x22:
@@ -765,6 +782,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x22);
 		psg_.setNr43(data);
 		break;
 	case 0x23:
@@ -772,6 +790,7 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long 
 			return;
 
 		psg_.generateSamples(cc, isDoubleSpeed());
+		updateSoundChannelOwner(0x23);
 		psg_.setNr44(data);
 		data |= 0xBF;
 		break;
@@ -1054,6 +1073,7 @@ LoadRes Memory::loadROM(std::string const &romfile, bool const forceDmg, bool co
 	if (LoadRes const fail = cart_.loadROM(romfile, forceDmg, multicartCompat))
 		return fail;
 
+	pokemonCrystalAudio_ = std::strncmp(cart_.romTitle(), "POKEMON CRYSTAL", 15) == 0;
 	psg_.init(cart_.isCgb());
 	lcd_.reset(ioamhram_, cart_.vramdata(), cart_.isCgb());
 	interrupter_.setGameShark(std::string());
@@ -1064,6 +1084,34 @@ LoadRes Memory::loadROM(std::string const &romfile, bool const forceDmg, bool co
 std::size_t Memory::fillSoundBuffer(unsigned long cc) {
 	psg_.generateSamples(cc, isDoubleSpeed());
 	return psg_.fillBuffer();
+}
+
+std::size_t Memory::fillSoundBuffers(unsigned long cc) {
+	psg_.generateSamples(cc, isDoubleSpeed());
+	return psg_.fillBuffer();
+}
+
+void Memory::updateSoundChannelOwner(unsigned p) {
+	if (!pokemonCrystalAudio_)
+		return;
+
+	unsigned channel;
+	if (p >= 0x10 && p <= 0x14) channel = 0;
+	else if (p >= 0x16 && p <= 0x19) channel = 1;
+	else if (p >= 0x1A && p <= 0x1E) channel = 2;
+	else if (p >= 0x20 && p <= 0x23) channel = 3;
+	else return;
+
+	unsigned char *wram = cart_.wramdata(0);
+	if (!wram)
+		return;
+	unsigned const current = wram[0x299];
+	if (current >= 8 || (current & 3) != channel)
+		return;
+	unsigned const flags = wram[0x104 + current * 0x32];
+	if (!(flags & 0x01))
+		return;
+	psg_.setChannelSfx(channel, (flags & 0x08) != 0);
 }
 
 }
