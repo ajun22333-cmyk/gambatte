@@ -48,6 +48,7 @@ namespace gambatte {
 PSG::PSG()
 : buffer_(0)
 , bgmBuffer_(0)
+, bgmEnabled_(true)
 
 , bufferPos_(0)
 , lastUpdate_(0)
@@ -63,6 +64,7 @@ void PSG::init(bool cgb) {
 	ch1_.init(cgb);
 	ch3_.init(cgb);
 	std::memset(channelSfx_, 0, sizeof channelSfx_);
+	bgmEnabled_ = true;
 }
 
 void PSG::reset() {
@@ -71,6 +73,7 @@ void PSG::reset() {
 	ch3_.reset();
 	ch4_.reset();
 	std::memset(channelSfx_, 0, sizeof channelSfx_);
+	bgmEnabled_ = true;
 }
 
 void PSG::setStatePtrs(SaveState &state) {
@@ -105,13 +108,17 @@ void PSG::accumulateChannels(unsigned long const cycles) {
 		std::memset(bgmBuf, 0, cycles * sizeof *bgmBuf);
 
 	uint_least32_t *buf = bgmBuf && !channelSfx_[0] ? bgmBuf : mainBuf;
-	ch1_.update(buf, soVol_, cycles);
+	if (!bgmBuf || channelSfx_[0] || bgmEnabled_)
+		ch1_.update(buf, soVol_, cycles);
 	buf = bgmBuf && !channelSfx_[1] ? bgmBuf : mainBuf;
-	ch2_.update(buf, soVol_, cycles);
+	if (!bgmBuf || channelSfx_[1] || bgmEnabled_)
+		ch2_.update(buf, soVol_, cycles);
 	buf = bgmBuf && !channelSfx_[2] ? bgmBuf : mainBuf;
-	ch3_.update(buf, soVol_, cycles);
+	if (!bgmBuf || channelSfx_[2] || bgmEnabled_)
+		ch3_.update(buf, soVol_, cycles);
 	buf = bgmBuf && !channelSfx_[3] ? bgmBuf : mainBuf;
-	ch4_.update(buf, soVol_, cycles);
+	if (!bgmBuf || channelSfx_[3] || bgmEnabled_)
+		ch4_.update(buf, soVol_, cycles);
 }
 
 void PSG::generateSamples(unsigned long const cycleCounter, bool const doubleSpeed) {
