@@ -37,6 +37,7 @@ Memory::Memory(Interrupter const &interrupter)
 , serialCnt_(0)
 , blanklcd_(false)
 , pokemonCrystalAudio_(false)
+, ambrosiaAudio_(false)
 {
 	intreq_.setEventTime<intevent_blit>(144 * 456ul);
 	intreq_.setEventTime<intevent_end>(0);
@@ -1073,12 +1074,23 @@ LoadRes Memory::loadROM(std::string const &romfile, bool const forceDmg, bool co
 	if (LoadRes const fail = cart_.loadROM(romfile, forceDmg, multicartCompat))
 		return fail;
 
-	pokemonCrystalAudio_ = std::strncmp(cart_.romTitle(), "POKEMON CRYSTAL", 15) == 0;
+	ambrosiaAudio_ = std::strncmp(cart_.romTitle(), "PM_CRYSTAL", 10) == 0;
+	pokemonCrystalAudio_ = ambrosiaAudio_ || std::strncmp(cart_.romTitle(), "POKEMON CRYSTAL", 15) == 0;
 	psg_.init(cart_.isCgb());
 	lcd_.reset(ioamhram_, cart_.vramdata(), cart_.isCgb());
 	interrupter_.setGameShark(std::string());
 
 	return LOADRES_OK;
+}
+
+
+bool Memory::isAmbrosiaAudioHook(unsigned short pc) const {
+	if (!ambrosiaAudio_ || (pc != 0x405C && pc != 0x406B && pc != 0x4113))
+		return false;
+
+	unsigned char *const bank0 = cart_.romdata(0);
+	unsigned char *const bank1 = cart_.romdata(1);
+	return bank0 && bank1 && (bank1 - bank0) / 0x4000 + 1 == 0x3A;
 }
 
 std::size_t Memory::fillSoundBuffer(unsigned long cc) {
