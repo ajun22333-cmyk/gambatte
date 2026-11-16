@@ -62,6 +62,12 @@ public:
 	PakInfo const pakInfo(bool multicartCompat) const { return mem_.pakInfo(multicartCompat); }
 	void setSoundBuffer(uint_least32_t *buf) { mem_.setSoundBuffer(buf); }
 	void setSoundBuffers(uint_least32_t *buf, uint_least32_t *bgmBuf) { mem_.setSoundBuffers(buf, bgmBuf); }
+	void setBgmFrameDue(bool due) {
+		bgmFrameDue_ = due;
+		bgmTickConsumed_ = false;
+		mem_.setBgmFrameDue(due);
+	}
+	bool isAmbrosiaAudioRom() const { return mem_.isAmbrosiaAudioRom(); }
 	std::size_t fillSoundBuffer() { return mem_.fillSoundBuffer(cycleCounter_); }
 	std::size_t fillSoundBuffers() { return mem_.fillSoundBuffers(cycleCounter_); }
 	bool isCgb() const { return mem_.isCgb(); }
@@ -81,6 +87,10 @@ private:
 	unsigned hf1, hf2, zf, cf;
 	unsigned char a_, b, c, d, e, /*f,*/ h, l;
 	bool skip_;
+	bool bgmFrameDue_;
+	bool bgmTickConsumed_;
+	bool bgmUpdateAllowed_;
+	unsigned char bgmOutputBackup_;
 
 	void process(unsigned long cycles);
 };
