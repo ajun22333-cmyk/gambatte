@@ -520,8 +520,11 @@ void CPU::process(unsigned long const cycles) {
 							mem_.write(0xC29B, bgmOutputBackup_, cycleCounter);
 						unsigned const flags = mem_.read(0xC104 + channel * 0x32, cycleCounter);
 						if (flags & 0x01) {
-							pc = 0x40FB;
-							cycleCounter += 256;
+							// Keep SFX running at game speed when it borrows a music channel.
+							if (!(flags & 0x08)) {
+								pc = 0x40FB;
+								cycleCounter += 256;
+							}
 						} else {
 							pc = 0x4101;
 							cycleCounter += 16;
