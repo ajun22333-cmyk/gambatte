@@ -71,6 +71,24 @@ std::ptrdiff_t GB::runFor(gambatte::uint_least32_t *const videoBuf, std::ptrdiff
 	     : cyclesSinceBlit;
 }
 
+std::ptrdiff_t GB::runForWithBGM(gambatte::uint_least32_t *const videoBuf, std::ptrdiff_t const pitch,
+                                gambatte::uint_least32_t *const soundBuf,
+                                gambatte::uint_least32_t *const bgmBuf, std::size_t &samples) {
+	if (!p_->cpu.loaded()) {
+		samples = 0;
+		return -1;
+	}
+
+	p_->cpu.setVideoBuffer(videoBuf, pitch);
+	p_->cpu.setSoundBuffers(soundBuf, bgmBuf);
+
+	long const cyclesSinceBlit = p_->cpu.runFor(samples * 2);
+	samples = p_->cpu.fillSoundBuffers();
+	return cyclesSinceBlit >= 0
+	     ? static_cast<std::ptrdiff_t>(samples) - (cyclesSinceBlit >> 1)
+	     : cyclesSinceBlit;
+}
+
 void GB::reset() {
 	if (p_->cpu.loaded()) {
 		p_->cpu.saveSavedata();
