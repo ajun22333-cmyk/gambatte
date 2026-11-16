@@ -95,7 +95,9 @@ public:
 	void setInputGetter(InputGetter *getInput) { getInput_ = getInput; }
 	void setEndtime(unsigned long cc, unsigned long inc);
 	void setSoundBuffer(uint_least32_t *buf) { psg_.setBuffer(buf); }
+	void setSoundBuffers(uint_least32_t *buf, uint_least32_t *bgmBuf) { psg_.setBuffers(buf, bgmBuf); }
 	std::size_t fillSoundBuffer(unsigned long cc);
+	std::size_t fillSoundBuffers(unsigned long cc);
 
 	void setVideoBuffer(uint_least32_t *videoBuf, std::ptrdiff_t pitch) {
 		lcd_.setVideoBuffer(videoBuf, pitch);
@@ -125,6 +127,7 @@ private:
 	unsigned char oamDmaPos_;
 	unsigned char serialCnt_;
 	bool blanklcd_;
+	bool pokemonCrystalAudio_;
 
 	void decEventCycles(IntEventId eventId, unsigned long dec);
 	void oamDmaInitSetup();
@@ -139,6 +142,7 @@ private:
 	void updateSerial(unsigned long cc);
 	void updateTimaIrq(unsigned long cc);
 	void updateIrqs(unsigned long cc);
+	void updateSoundChannelOwner(unsigned p);
 	bool isDoubleSpeed() const { return lcd_.isDoubleSpeed(); }
 };
 
