@@ -47,10 +47,13 @@ namespace gambatte {
 
 PSG::PSG()
 : buffer_(0)
+, bgmBuffer_(0)
+, channelSfx_()
 , bufferPos_(0)
 , lastUpdate_(0)
 , soVol_(0)
 , rsum_(0x8000) // initialize to 0x8000 to prevent borrows from high word, xor away later
+, bgmRsum_(0x8000)
 , enabled_(false)
 {
 }
@@ -91,11 +94,19 @@ void PSG::loadState(SaveState const &state) {
 }
 
 void PSG::accumulateChannels(unsigned long const cycles) {
-	uint_least32_t *const buf = buffer_ + bufferPos_;
-	std::memset(buf, 0, cycles * sizeof *buf);
+	uint_least32_t *const mainBuf = buffer_ + bufferPos_;
+	uint_least32_t *const bgmBuf = bgmBuffer_ ? bgmBuffer_ + bufferPos_ : 0;
+	std::memset(mainBuf, 0, cycles * sizeof *mainBuf);
+	if (bgmBuf)
+		std::memset(bgmBuf, 0, cycles * sizeof *bgmBuf);
+
+	uint_least32_t *buf = bgmBuf && !channelSfx_[0] ? bgmBuf : mainBuf;
 	ch1_.update(buf, soVol_, cycles);
+	buf = bgmBuf && !channelSfx_[1] ? bgmBuf : mainBuf;
 	ch2_.update(buf, soVol_, cycles);
+	buf = bgmBuf && !channelSfx_[2] ? bgmBuf : mainBuf;
 	ch3_.update(buf, soVol_, cycles);
+	buf = bgmBuf && !channelSfx_[3] ? bgmBuf : mainBuf;
 	ch4_.update(buf, soVol_, cycles);
 }
 
@@ -114,45 +125,33 @@ void PSG::resetCounter(unsigned long newCc, unsigned long oldCc, bool doubleSpee
 	lastUpdate_ = newCc - (oldCc - lastUpdate_);
 }
 
-std::size_t PSG::fillBuffer() {
-	uint_least32_t sum = rsum_;
-	uint_least32_t *b = buffer_;
-	std::size_t n = bufferPos_;
-
+static void applyHighPassFilter(uint_least32_t *buffer, std::size_t count, uint_least32_t &sum) {
+	uint_least32_t *b = buffer;
+	std::size_t n = count;
 	if (std::size_t n2 = n >> 3) {
 		n -= n2 << 3;
-
 		do {
-			sum += b[0];
-			b[0] = sum ^ 0x8000;
-			sum += b[1];
-			b[1] = sum ^ 0x8000;
-			sum += b[2];
-			b[2] = sum ^ 0x8000;
-			sum += b[3];
-			b[3] = sum ^ 0x8000;
-			sum += b[4];
-			b[4] = sum ^ 0x8000;
-			sum += b[5];
-			b[5] = sum ^ 0x8000;
-			sum += b[6];
-			b[6] = sum ^ 0x8000;
-			sum += b[7];
-			b[7] = sum ^ 0x8000;
-
+			sum += b[0]; b[0] = sum ^ 0x8000;
+			sum += b[1]; b[1] = sum ^ 0x8000;
+			sum += b[2]; b[2] = sum ^ 0x8000;
+			sum += b[3]; b[3] = sum ^ 0x8000;
+			sum += b[4]; b[4] = sum ^ 0x8000;
+			sum += b[5]; b[5] = sum ^ 0x8000;
+			sum += b[6]; b[6] = sum ^ 0x8000;
+			sum += b[7]; b[7] = sum ^ 0x8000;
 			b += 8;
 		} while (--n2);
 	}
-
 	while (n--) {
 		sum += *b;
-		// xor away the initial rsum value of 0x8000 (which prevents
-		// borrows from the high word) from the low word
 		*b++ = sum ^ 0x8000;
 	}
+}
 
-	rsum_ = sum;
-
+std::size_t PSG::fillBuffer() {
+	applyHighPassFilter(buffer_, bufferPos_, rsum_);
+	if (bgmBuffer_)
+		applyHighPassFilter(bgmBuffer_, bufferPos_, bgmRsum_);
 	return bufferPos_;
 }
 
