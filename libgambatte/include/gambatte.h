@@ -82,6 +82,9 @@ public:
 	  */
 	std::ptrdiff_t runFor(gambatte::uint_least32_t *videoBuf, std::ptrdiff_t pitch,
 	                      gambatte::uint_least32_t *audioBuf, std::size_t &samples);
+	std::ptrdiff_t runForWithBGM(gambatte::uint_least32_t *videoBuf, std::ptrdiff_t pitch,
+	                             gambatte::uint_least32_t *audioBuf,
+	                             gambatte::uint_least32_t *bgmBuf, std::size_t &samples);
 
 	/**
 	  * Reset to initial state.
