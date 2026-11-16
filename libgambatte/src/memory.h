@@ -101,6 +101,9 @@ public:
 			for (unsigned channel = 0; channel < 4; ++channel)
 				psg_.setChannelSfx(channel, true);
 	}
+	void setBgmFrameDue(bool due) { psg_.setBgmEnabled(due); }
+	bool isAmbrosiaAudioRom() const { return ambrosiaAudio_; }
+	bool isAmbrosiaAudioHook(unsigned short pc) const;
 	std::size_t fillSoundBuffer(unsigned long cc);
 	std::size_t fillSoundBuffers(unsigned long cc);
 
@@ -133,6 +136,7 @@ private:
 	unsigned char serialCnt_;
 	bool blanklcd_;
 	bool pokemonCrystalAudio_;
+	bool ambrosiaAudio_;
 
 	void decEventCycles(IntEventId eventId, unsigned long dec);
 	void oamDmaInitSetup();
