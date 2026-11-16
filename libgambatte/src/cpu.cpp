@@ -39,6 +39,10 @@ CPU::CPU()
 , h(0x01)
 , l(0x4D)
 , skip_(false)
+, bgmFrameDue_(true)
+, bgmTickConsumed_(false)
+, bgmUpdateAllowed_(true)
+, bgmOutputBackup_(0)
 {
 }
 
@@ -501,7 +505,34 @@ void CPU::process(unsigned long const cycles) {
 				unsigned long cycles = mem_.nextEventTime() - cycleCounter;
 				cycleCounter += cycles + (-cycles & 3);
 			}
+
 		} else while (cycleCounter < mem_.nextEventTime()) {
+			if (mem_.isAmbrosiaAudioHook(pc)) {
+				if (pc == 0x405C) {
+					bgmUpdateAllowed_ = bgmFrameDue_ && !bgmTickConsumed_;
+					if (bgmUpdateAllowed_)
+						bgmTickConsumed_ = true;
+					bgmOutputBackup_ = mem_.read(0xC29B, cycleCounter);
+				} else if (pc == 0x406B && !bgmUpdateAllowed_) {
+					unsigned const channel = mem_.read(0xC299, cycleCounter);
+					if (channel < 4) {
+						if (channel == 0)
+							mem_.write(0xC29B, bgmOutputBackup_, cycleCounter);
+						unsigned const flags = mem_.read(0xC104 + channel * 0x32, cycleCounter);
+						if (flags & 0x01) {
+							pc = 0x40FB;
+							cycleCounter += 256;
+						} else {
+							pc = 0x4101;
+							cycleCounter += 16;
+						}
+					}
+				} else if (pc == 0x4113 && !bgmUpdateAllowed_) {
+					pc = 0x4119;
+					cycleCounter += 48;
+				}
+			}
+
 			unsigned char opcode;
 
 			PC_READ(opcode);
