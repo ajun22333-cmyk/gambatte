@@ -38,7 +38,9 @@ public:
 	void generateSamples(unsigned long cycleCounter, bool doubleSpeed);
 	void resetCounter(unsigned long newCc, unsigned long oldCc, bool doubleSpeed);
 	std::size_t fillBuffer();
-	void setBuffer(uint_least32_t *buf) { buffer_ = buf; bufferPos_ = 0; }
+	void setBuffer(uint_least32_t *buf) { buffer_ = buf; bgmBuffer_ = 0; bufferPos_ = 0; }
+	void setBuffers(uint_least32_t *buf, uint_least32_t *bgmBuf) { buffer_ = buf; bgmBuffer_ = bgmBuf; bufferPos_ = 0; }
+	void setChannelSfx(unsigned channel, bool isSfx) { if (channel < 4) channelSfx_[channel] = isSfx; }
 
 	bool isEnabled() const { return enabled_; }
 	void setEnabled(bool value) { enabled_ = value; }
@@ -77,10 +79,13 @@ private:
 	Channel3 ch3_;
 	Channel4 ch4_;
 	uint_least32_t *buffer_;
+	uint_least32_t *bgmBuffer_;
+	bool channelSfx_[4];
 	std::size_t bufferPos_;
 	unsigned long lastUpdate_;
 	unsigned long soVol_;
 	uint_least32_t rsum_;
+	uint_least32_t bgmRsum_;
 	bool enabled_;
 
 	void accumulateChannels(unsigned long cycles);
