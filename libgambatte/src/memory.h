@@ -95,7 +95,12 @@ public:
 	void setInputGetter(InputGetter *getInput) { getInput_ = getInput; }
 	void setEndtime(unsigned long cc, unsigned long inc);
 	void setSoundBuffer(uint_least32_t *buf) { psg_.setBuffer(buf); }
-	void setSoundBuffers(uint_least32_t *buf, uint_least32_t *bgmBuf) { psg_.setBuffers(buf, pokemonCrystalAudio_ ? bgmBuf : 0); }
+	void setSoundBuffers(uint_least32_t *buf, uint_least32_t *bgmBuf) {
+		psg_.setBuffers(buf, bgmBuf);
+		if (!pokemonCrystalAudio_)
+			for (unsigned channel = 0; channel < 4; ++channel)
+				psg_.setChannelSfx(channel, true);
+	}
 	std::size_t fillSoundBuffer(unsigned long cc);
 	std::size_t fillSoundBuffers(unsigned long cc);
 
