@@ -62,6 +62,7 @@ PSG::PSG()
 void PSG::init(bool cgb) {
 	ch1_.init(cgb);
 	ch3_.init(cgb);
+	std::memset(channelSfx_, 0, sizeof channelSfx_);
 }
 
 void PSG::reset() {
